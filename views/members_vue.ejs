@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title><%= title %></title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="/stylesheets/default.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.2.1/css/bootstrap.css" integrity="sha256-5U3z9K3P17cKgGYxXQA5rBZO5EDju+lgtXG6oDXNbNY=" crossorigin="anonymous" />
+</head>
+
+<body>
+    <!-- list -->
+    <div class="container-fluid" id="div_list">
+        <h2>メンバー一覧</h2>
+        <table class="table table-sm">
+            <thead class="thead-light">
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Account</th>
+                    <th scope="col">Name</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="tbody_list">
+                <tr v-for="(member, index) in members" class="member_container">
+                    <td>
+                        {{index}}
+                    </td>
+                    <td>{{member.account}}</td>
+                    <td>{{member.name}}</td>
+                    <td>
+                        <button type="button" class="btn_show_detail btn btn-primary" v-on:click="showDetail">詳細</button>
+                        <input type="hidden" class="idx_container" v-bind:value="member.idx">
+                        <input type="hidden" class="account_container" v-bind:value="member.account">
+                        <input type="hidden" class="name_container" v-bind:value="member.name">
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="container-fluid" id="div_list">
+        <h2>メンバー情報</h2>
+        <form id="form_detail">
+            <div class="form-group row">
+                <label for="input_account" class="col-sm-2 col-form-label">account</label>
+                <input id="input_account" type="text" class="col-sm-10 idx_container form-control" v-bind:value="account">
+            </div>
+            <div class="form-group row">
+                <label for="input_name" class="col-sm-2 col-form-label">name</label>
+                <input id="input_name" type="text" class="col-sm-10 idx_container form-control" v-bind:value="name">
+            </div>
+        </form>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"
+        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js"
+        integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"
+        integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.1/underscore-min.js"
+        integrity="sha256-G7A4JrJjJlFqP0yamznwPjAApIKPkadeHfyIwiaa9e0="
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.22/dist/vue.js"></script>
+    <script>
+/* global Vue $ */
+var app = app || {};
+app.vmMember = new Vue({
+    el : '#form_detail',
+    data : {
+        account : '',
+        name : ''
+    }
+});
+app.loadMembersList = () => {
+    let dfd = $.Deferred();
+    $.ajax({
+        url : '/api/members',
+        method : 'GET',
+        dataType : 'json',
+        data : {limit : 10}
+    })
+    .done((data, textStatus, jqXHR) => {
+        dfd.resolve(data);
+    })
+    .fail((jqXHR, textStatus, errorThrown) => {
+        dfd.reject(jqXHR);
+    });
+    return dfd.promise();
+};
+app.renderList = (data) => {
+    app.vmList = new Vue({
+        el : '#tbody_list',
+        data : {members : data},
+        methods:{
+            showDetail : function(e){
+                app.vmMember.$data.account = e.target.parentElement.querySelector('.account_container').value;
+                app.vmMember.$data.name = e.target.parentElement.querySelector('.name_container').value;
+            }
+        }
+    });
+};
+
+/** オンロード処理 **/
+$(() => {
+    $.Deferred().resolve()
+    .then(app.loadMembersList)
+    .then((data) => {
+        return data.rows.map((c, i, a) => {
+            return {
+                account : c.value.account,
+                name : c.value.name
+            };
+        });
+    })
+    .then(app.renderList)
+    .fail((err) => {
+        console.log(err);
+    });
+});
+    </script>
+</body>
+</html>

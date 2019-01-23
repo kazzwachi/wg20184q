@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title><%= title %></title>
+        <meta charset="utf-8">
+    </head>
+    <body>
+        <h1><%= title %></h1>
+        <table>
+            <thead>
+                <tr>
+                    <th scope="col">アカウント名</th>
+                    <th scope="col">名前</th>
+                </tr>
+            </thead>
+            <tbody id="tbody_list">
+            </tbody>
+        </table>
+        <script src="https://code.jquery.com/jquery-3.3.1.min.js"
+            integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+            crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.1/underscore-min.js"
+            integrity="sha256-G7A4JrJjJlFqP0yamznwPjAApIKPkadeHfyIwiaa9e0="
+            crossorigin="anonymous"></script>
+        <script src="/javascripts/members.js"></script>
+        <script type="text/template" id="row_template">
+            <tr>
+                <td>{{= account }}</td>
+                <td>{{= name }}</td>
+            </tr>
+        </script>
+        <style>
+            table {border : solid 1px black; border-collapse : collapse;}
+            th,td {border : solid 1px black;padding : 2px;}
+            th {background-color:silver;}
+            td {background-color:white;}
+        </style>
+
+    </body>
+</html>
